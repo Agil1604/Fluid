@@ -23,6 +23,7 @@ public:
     ~Simulator() override = default;
 
 private:
+    bool is_initialized = false;
     Field field;
     VectorField<vType, Nv, Mv> velocity{};
     VectorField<vfType, Nv, Mv> velocity_flow{};
@@ -40,6 +41,7 @@ private:
 
 template <typename pType, typename vType, typename vfType, int Nv, int Mv>
 Simulator<pType, vType, vfType, Nv, Mv>::Simulator(std::string filename){
+    is_initialized = true;
     field = std::move(Field(filename));
     g = field.g;
     for (int i = 0; i < 256; ++i){
@@ -182,6 +184,10 @@ bool Simulator<pType, vType, vfType, Nv, Mv>::propagate_move(int x, int y, bool 
 
 template <typename pType, typename vType, typename vfType, int Nv, int Mv>
 void Simulator<pType, vType, vfType, Nv, Mv>::run(){
+    if (!is_initialized){
+        std::cout << "you cannot run uninitialized simulator\n";
+        exit(-1);
+    }
     auto& myfield = field.field;
     constexpr size_t T = 1'000'000;
     int dirs[Nv][Mv]{};
