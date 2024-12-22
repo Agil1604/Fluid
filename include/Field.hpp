@@ -9,21 +9,22 @@ class Field
 {
 public:
     Field() = default;
-    Field(std::string filename);
+    Field(std::string in, std::string out);
     void get_field();
     void print_field();
-    void print_field(std::string filename);
+    void save_field();
 
     std::vector<std::string> field;
     int N;
     int M;
     double g;
-    int T;
     int count;
     double rho[256];
 
 private:
-    std::string path;
+    std::string infile;
+    std::string outfile;
+    std::vector<char> types{};
 };
 
 #endif

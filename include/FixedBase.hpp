@@ -31,11 +31,11 @@ public:
     explicit constexpr operator double() const {return (double)v / ((double) (1 << K));}
 
     template <typename V1, size_t K1>
-    FixedBase &operator=(const FixedBase<V1, K1>& b);
+    FixedBase &operator=(const FixedBase<V1, K1> b);
 };
 
 template <typename V1, size_t K1, typename V2, size_t K2>
-auto operator<=>(const FixedBase<V1, K1>& a, const FixedBase<V2, K2>& b){
+auto operator<=>(const FixedBase<V1, K1> a, const FixedBase<V2, K2> b){
     if (K1 >= K2){
         return a.v <=> (b.v << (K1-K2));
     } else {
@@ -44,7 +44,7 @@ auto operator<=>(const FixedBase<V1, K1>& a, const FixedBase<V2, K2>& b){
 }
 
 template <typename V1, size_t K1, typename V2, size_t K2>
-bool operator==(const FixedBase<V1, K1>& a, const FixedBase<V2, K2>& b){
+bool operator==(const FixedBase<V1, K1> a, const FixedBase<V2, K2> b){
     if (K1 >= K2){
         return a.v == (b.v << (K1-K2));
     } else {
@@ -53,7 +53,7 @@ bool operator==(const FixedBase<V1, K1>& a, const FixedBase<V2, K2>& b){
 }
 
 template <typename V1, size_t K1, typename V2, size_t K2>
-FixedBase<V1, K1> operator+(const FixedBase<V1, K1>& a, const FixedBase<V2, K2>& b) {
+FixedBase<V1, K1> operator+(const FixedBase<V1, K1> a, const FixedBase<V2, K2> b) {
     if (K1 >= K2){
         return FixedBase<V1, K1>::from_raw(a.v + (b.v << (K1-K2)));
     } else {
@@ -62,7 +62,7 @@ FixedBase<V1, K1> operator+(const FixedBase<V1, K1>& a, const FixedBase<V2, K2>&
 }
 
 template <typename V1, size_t K1, typename V2, size_t K2>
-FixedBase<V1, K1> operator-(const FixedBase<V1, K1>& a, const FixedBase<V2, K2>& b) {
+FixedBase<V1, K1> operator-(const FixedBase<V1, K1> a, const FixedBase<V2, K2> b) {
     if (K1 >= K2){
         return FixedBase<V1, K1>::from_raw(a.v - (b.v << (K1-K2)));
     } else {
@@ -70,42 +70,42 @@ FixedBase<V1, K1> operator-(const FixedBase<V1, K1>& a, const FixedBase<V2, K2>&
     }}
 
 template <typename V1, size_t K1, typename V2, size_t K2>
-FixedBase<V1, K1> operator*(const FixedBase<V1, K1>& a, const FixedBase<V2, K2>& b) {
+FixedBase<V1, K1> operator*(const FixedBase<V1, K1> a, const FixedBase<V2, K2> b) {
     return FixedBase<V1, K1>::from_raw(((int64_t) a.v * b.v) >> K2);
 }
 
 template <typename V1, size_t K1, typename V2, size_t K2>
-FixedBase<V1, K1> operator/(const FixedBase<V1, K1>& a, const FixedBase<V2, K2>& b) {
+FixedBase<V1, K1> operator/(const FixedBase<V1, K1> a, const FixedBase<V2, K2> b) {
     return FixedBase<V1, K1>::from_raw(((int64_t) a.v << K2) / b.v);
 }
 
 template <typename V1, size_t K1, typename V2, size_t K2>
-FixedBase<V1, K1> &operator+=(FixedBase<V1, K1>& a, const FixedBase<V2, K2>& b) {
+FixedBase<V1, K1> &operator+=(FixedBase<V1, K1>& a, const FixedBase<V2, K2> b) {
     return a = a + b;
 }
 
 template <typename V1, size_t K1, typename V2, size_t K2>
-FixedBase<V1, K1> &operator-=(FixedBase<V1, K1>& a, const FixedBase<V2, K2>& b) {
+FixedBase<V1, K1> &operator-=(FixedBase<V1, K1>& a, const FixedBase<V2, K2> b) {
     return a = a - b;
 }
 
 template <typename V1, size_t K1, typename V2, size_t K2>
-FixedBase<V1, K1> &operator*=(FixedBase<V1, K1>& a, const FixedBase<V2, K2>& b) {
+FixedBase<V1, K1> &operator*=(FixedBase<V1, K1>& a, const FixedBase<V2, K2> b) {
     return a = a * b;
 }
 
 template <typename V1, size_t K1, typename V2, size_t K2>
-FixedBase<V1, K1> &operator/=(FixedBase<V1, K1>& a, const FixedBase<V2, K2>& b) {
+FixedBase<V1, K1> &operator/=(FixedBase<V1, K1>& a, const FixedBase<V2, K2> b) {
     return a = a / b;
 }
 
 template <typename V, size_t K>
-FixedBase<V, K> operator-(const FixedBase<V, K>& x) {
+FixedBase<V, K> operator-(const FixedBase<V, K> x) {
     return FixedBase<V, K>::from_raw(-x.v);
 }
 
 template <typename V, size_t K>
-FixedBase<V, K> abs(const FixedBase<V, K>& x) {
+FixedBase<V, K> abs(const FixedBase<V, K> x) {
     if (x.v < 0) {
         x.v = -x.v;
     }
@@ -127,7 +127,7 @@ std::ostream &operator<<(std::ostream &out, FixedBase<V, K> x) {
 
 template <typename V, size_t K>
 template <typename V1, size_t K1>
-FixedBase<V, K> &FixedBase<V, K>::operator=(const FixedBase<V1, K1>& b) {
+FixedBase<V, K> &FixedBase<V, K>::operator=(const FixedBase<V1, K1> b) {
     if (*this == b)
         return *this;
     
@@ -136,13 +136,18 @@ FixedBase<V, K> &FixedBase<V, K>::operator=(const FixedBase<V1, K1>& b) {
 }
 
 template <typename V1, size_t K1, typename V2, size_t K2>
-FixedBase<V1, K1> min(const FixedBase<V1, K1>& a, const FixedBase<V2, K2>& b) {
+FixedBase<V1, K1> min(const FixedBase<V1, K1> a, const FixedBase<V2, K2> b) {
     return a <= b ? a : FixedBase<V1, K1>(b);
 }
 
 template <typename V1, size_t K1, typename V2>
-FixedBase<V1, K1> min(const FixedBase<V1, K1>& a, const V2& b) {
+FixedBase<V1, K1> min(const FixedBase<V1, K1> a, const V2 b) {
     return a <= b ? a : FixedBase<V1, K1>(b);
+}
+
+template <typename V1, typename V2>
+V1 min(const V1 a, const V2 b) {
+    return std::min(a, b);
 }
 
 #endif

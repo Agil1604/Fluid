@@ -3,13 +3,14 @@
 #include <fstream>
 #include <string>
 
-Field::Field(std::string filename){
-    path = filename;
+Field::Field(std::string in, std::string out){
+    infile = in;
+    outfile = out;
     get_field();
 }
 
 void Field::get_field(){
-    std::ifstream input (path);
+    std::ifstream input (infile);
     std::string myline;
 
     if (input.is_open()){
@@ -20,11 +21,10 @@ void Field::get_field(){
 
         for (int i = 0; i < count; ++i){
             char tmp = input.get();
+            types.push_back(tmp);
             input >> rho[tmp];
             input.get();
         }
-        
-        T = 0;
         while (!input.eof()){
             std::getline(input, myline);
             if (myline.length() != 0){
@@ -41,11 +41,17 @@ void Field::print_field(){
     }
 }
 
-void Field::print_field(std::string out){
-    std::ofstream outfile (out);
-    outfile << N << " " << M << std::endl;
-    outfile << "Tick: " << T << std::endl;
-    for (const auto& line : field){
-        outfile << line << std::endl;
+
+void Field::save_field(){
+    std::ofstream out (outfile);
+    out << N << " " << M << " " << g << " " << count << std::endl;
+    for (auto& it : types){
+        out << it << " " << rho[it] << std::endl;
     }
+    out << std::endl;
+    for (const auto& line : field){
+        out << line << std::endl;
+    }
+    out.close();
+    std::cout << std::endl << "All changes are saved in " << outfile << std::endl;
 }

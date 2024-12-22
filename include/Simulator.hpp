@@ -10,16 +10,19 @@
 
 class Base{
 public:
+    virtual void build(std::string in, std::string out) = 0;
     virtual void run() = 0;
+    virtual void save() = 0;
     virtual ~Base() = default;
 };
 
 template <typename pType, typename vType, typename vfType, int Nv, int Mv>
-class Simulator : Base{
+class Simulator : public Base{
 public:
     Simulator() {};
-    Simulator(std::string filename);
-    void run();
+    void build(std::string in, std::string out);
+    void run() override;
+    void save() override;
     ~Simulator() override = default;
 
 private:
@@ -32,6 +35,7 @@ private:
     vType g{};
     pType rho[256]{};
     pType p[Nv][Mv], old_p[Nv][Mv];
+    int cur_Tick = 0;
 
     std::tuple<vfType, bool, std::pair<int, int>> propagate_flow(int x, int y, vfType lim);
     void propagate_stop(int x, int y, bool force = false);
@@ -40,14 +44,20 @@ private:
 };
 
 template <typename pType, typename vType, typename vfType, int Nv, int Mv>
-Simulator<pType, vType, vfType, Nv, Mv>::Simulator(std::string filename){
+void Simulator<pType, vType, vfType, Nv, Mv>::build(std::string in, std::string out){
     is_initialized = true;
-    field = std::move(Field(filename));
+    field = std::move(Field(in, out));
     g = field.g;
     for (int i = 0; i < 256; ++i){
         rho[i] = field.rho[i];
     }
 }
+
+template <typename pType, typename vType, typename vfType, int Nv, int Mv>
+void Simulator<pType, vType, vfType, Nv, Mv>::save(){
+    field.save_field();
+}
+
 
 template <typename pType, typename vType, typename vfType, int Nv, int Mv>
 std::tuple<vfType, bool, std::pair<int, int>> Simulator<pType, vType, vfType, Nv, Mv>::propagate_flow(int x, int y, vfType lim) {
@@ -58,11 +68,11 @@ std::tuple<vfType, bool, std::pair<int, int>> Simulator<pType, vType, vfType, Nv
         if (field.field[nx][ny] != '#' && last_use[nx][ny] < UT) {
             auto cap = velocity.get(x, y, dx, dy);
             auto flow = velocity_flow.get(x, y, dx, dy);
-            if (flow == cap) {
+            if (flow == vfType(cap)) {
                 continue;
             }
             // assert(v >= velocity_flow.get(x, y, dx, dy));
-            auto vp = min(lim, cap - flow);
+            auto vp = min(lim, vfType(cap) - flow);
             if (last_use[nx][ny] == UT - 1) {
                 velocity_flow.add(x, y, dx, dy, vp);
                 last_use[x][y] = UT;
@@ -202,7 +212,7 @@ void Simulator<pType, vType, vfType, Nv, Mv>::run(){
         }
     }
 
-    for (size_t i = 0; i < T; ++i) {
+    while (cur_Tick++ < T) {
         
         // Apply external forces
         for (size_t x = 0; x < Nv; ++x) {
@@ -226,13 +236,13 @@ void Simulator<pType, vType, vfType, Nv, Mv>::run(){
                         auto delta_p = old_p[x][y] - old_p[nx][ny];
                         auto force = delta_p;
                         auto &contr = velocity.get(nx, ny, -dx, -dy);
-                        if (contr * rho[myfield[nx][ny]] >= force) {
-                            contr -= force / rho[myfield[nx][ny]];
+                        if (pType(contr) * rho[myfield[nx][ny]] >= force) {
+                            contr -= vType(force / rho[myfield[nx][ny]]);
                             continue;
                         }
-                        force -= contr * rho[myfield[nx][ny]];
+                        force -= pType(contr) * rho[myfield[nx][ny]];
                         contr = 0;
-                        velocity.add(x, y, dx, dy, force / rho[myfield[x][y]]);
+                        velocity.add(x, y, dx, dy, vType(force / rho[myfield[x][y]]));
                         p[x][y] -= force / pType(dirs[x][y]);
                     }
                 }
@@ -267,8 +277,8 @@ void Simulator<pType, vType, vfType, Nv, Mv>::run(){
                     auto new_v = velocity_flow.get(x, y, dx, dy);
                     if (old_v > 0) {
                         assert(new_v <= old_v);
-                        velocity.get(x, y, dx, dy) = new_v;
-                        auto force = (old_v - new_v) * rho[myfield[x][y]];
+                        velocity.get(x, y, dx, dy) = vType(new_v);
+                        pType force = (pType(old_v) - pType(new_v)) * rho[myfield[x][y]];
                         if (myfield[x][y] == '.')
                             force *= pType(0.8);
                         if (myfield[x + dx][y + dy] == '#') {
@@ -297,7 +307,7 @@ void Simulator<pType, vType, vfType, Nv, Mv>::run(){
         }
 
         if (prop) {
-            std::cout << "Tick " << i << ":\n";
+            std::cout << "Tick " << cur_Tick << ":\n";
             field.print_field();
         }
     }
