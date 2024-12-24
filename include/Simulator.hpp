@@ -20,7 +20,7 @@ template <typename pType, typename vType, typename vfType, int Nv, int Mv>
 class Simulator : public Base{
 public:
     Simulator() {};
-    void build(std::string in, std::string out);
+    void build(std::string in, std::string out) override;
     void run() override;
     void save() override;
     ~Simulator() override = default;

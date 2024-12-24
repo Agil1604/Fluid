@@ -5,7 +5,6 @@
 #include<bits/stdc++.h>
 
 template <typename V, size_t K>
-requires (sizeof(V) * CHAR_BIT >= K)
 class FixedBase {
 public:
     template <typename V1, size_t K1>

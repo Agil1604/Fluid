@@ -30,7 +30,7 @@ template<> struct FastSizeToType<32> {using type = int_fast32_t;};
 template<> struct FastSizeToType<64> {using type = int_fast64_t;};
 
 template <size_t N>
-struct FastSizeToType{using type = FastSizeToType<N+1>::type;};
+struct FastSizeToType{using type = typename FastSizeToType<N+1>::type;};
 
 template <size_t N, size_t K>
 requires (N <= 64 && N >= K)
