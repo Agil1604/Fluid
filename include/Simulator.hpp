@@ -15,11 +15,11 @@ public:
 };
 
 template <typename pType, typename vType, typename vfType, int Nv, int Mv>
-class Simulator : Base{
+class Simulator : public Base{
 public:
     Simulator() {};
     Simulator(std::string filename);
-    void run();
+    void run() override;
     ~Simulator() override = default;
 
 private:
